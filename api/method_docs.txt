@@ -1,0 +1,33 @@
+********************************************************
+**
+** My API
+**
+** Request Prefix: /api/
+** All methods return JSON
+**
+********************************************************
+
+    GET
+    /example
+
+    Example:
+    http://yourdomain.com/api/example
+
+    Result:
+    {"fooKey":"barValue"}
+
+********************************************************
+
+    GET
+    /dbexample
+
+    Example:
+    http://yourdomain.com/api/dbexample
+
+    Result(s):
+    {"num_results":2,"results":[{"id":"2","fooColumn":"barValue1"},{"id":"1","fooColumn":"barValue2"}]}
+    
+    No Result(s):
+    {"error":"No results."}
+
+********************************************************

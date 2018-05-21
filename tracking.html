@@ -1,0 +1,115 @@
+<html>
+<head>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<title>Telematics Tracking</title>
+<form id="track-form" action="#">
+  <h4>Device Tracking</h4>
+  Device ID:<br>
+  <input type="text" name="id">
+  <br>
+  Device Label:<br>
+  <input type="text" name="label">
+  <br>
+  Last Reported:<br>
+  <input type="datetime-local" name="reported_time" step="1" value='2018-05-19T08:31:22'>
+  <br>
+  <!--Status:<br>
+  <select>
+  <option value="">All</option>
+  <option value="0">OK</option>
+  <option value="1">OFFLINE</option>
+  </select>
+  <br><br>-->
+  <input type="submit" value="SUBMIT">
+  <div id="response">
+    <pre></pre>
+  </div>
+  <div id="wait" style="display:none;width:69px;height:89px;border:1px solid black;position:absolute;top:50%;left:50%;padding:2px;"><img src='./ajax_wait.gif' width="64" height="64" /><br>Loading..</div>
+  <div id="device_status">
+  <table id="devices">
+  <tr>
+    <th>Device ID</th>
+    <th>Device Label</th>
+    <th>Last reported</th>
+    <th>Status</th>
+  </tr>
+  </table>
+  </div>
+</form> 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.js"></script>
+<script>
+(function($){
+        function processForm( e ){
+           $("#device_status").css("display", "none");
+           $('#devices tr.datas').remove();
+            $.ajax({
+                url: 'api/devices',
+                dataType: 'text',
+                type: 'get',
+                contentType: 'application/x-www-form-urlencoded',
+                data: $(this).serialize(),
+                success: function( data, textStatus, jQxhr ){
+                var resObj = JSON.parse(data);
+                var num_results = resObj.num_results;
+                
+                if(num_results){
+                 $("#device_status").css("display", "block");
+                 $.each( resObj.results, function( key, value ) {
+                   if(value.Flag){
+                    status_code = "<Span style='color:green'>OK</span>";
+                   }else{
+                    status_code = "<Span style='color:red'>OFFLINE</span>";
+                   }
+                  $('#devices tr:last').after('<tr class=datas><td>'+ value.device_id +'</td><td>' + value.label +'</td><td>' +value.reported_time + '</td><td>' + status_code + '</td></tr>');
+                });
+                }else{
+                $("#device_status").css("display", "block");
+                $('#devices tr:last').after('<tr class=datas><td colspan=4> No Records Found</td></tr>');
+                }
+                },
+                error: function( jqXhr, textStatus, errorThrown ){
+                    console.log( errorThrown );
+                }
+            });
+
+            e.preventDefault();
+        }
+
+        $('#track-form').submit( processForm );
+    })(jQuery);
+    
+$(document).ready(function(){
+    $(document).ajaxStart(function(){
+        $("#wait").css("display", "block");
+    });
+    $(document).ajaxComplete(function(){
+        $("#wait").css("display", "none");
+    });
+    $("button").click(function(){
+        $("#txt").load("demo_ajax_load.asp");
+    });
+    
+    $('#track-form').validate({
+        rules: {
+            id: {
+                required: true,
+            },
+            label: {
+                required: true,
+            },
+            reported_time: {
+                required: true,
+                dateTime: true
+            },
+            submitHandler: function(form) {
+             form.submit( processForm );
+           }
+        }
+    });
+});
+</script>
+</body>
+</html>
